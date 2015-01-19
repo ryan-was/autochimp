@@ -8,7 +8,7 @@ Version: 2.15
 */
 
 //
-//	When making changes to AutoChimp, keep in mind that MailChimp best practices for 
+//	When making changes to AutoChimp, keep in mind that MailChimp best practices for
 //	developers and integrators:  http://apidocs.mailchimp.com/api/faq/#faq5
 //
 
@@ -91,12 +91,12 @@ define( 'WP88_FIELD_DELIMITER', '+++' );
 // allows third party developers to add support for other plugins without having to
 // wait on an AutoChimp release.
 //
-// The class name should also match the name for the file that houses the class. 
+// The class name should also match the name for the file that houses the class.
 // Names are case sensitive!
 //
 function __autoload( $class )
 {
-	// All plugin scripts are required to be placed in the 'plugins' subfolder and 
+	// All plugin scripts are required to be placed in the 'plugins' subfolder and
 	// follow the proper naming convention.  See Help for more.
 	if ( 0 === strpos( $class, 'Sync') ||  0 === strpos( $class, 'Publish') ||  0 === strpos( $class, 'Content') )
 	{
@@ -110,7 +110,7 @@ function __autoload( $class )
 
 // Global variables - If you change this, be sure to see AC_FetchMappedWordPressData()
 // which has static comparisons to the values in this array.  FIX LATER.
-$wpUserDataArray = array( 'Username', 'Nickname', 'Website', 'Bio' , /*'AIM', 'Yahoo IM', 'Jabber-Google Chat'*/ );
+$wpUserDataArray = array( 'Username', 'Nickname', 'Website', 'Bio' , 'Job Function', 'Job Title', 'State'/*'AIM', 'Yahoo IM', 'Jabber-Google Chat'*/ );
 
 //
 //	Actions to hook to allow AutoChimp to do it's work
@@ -154,7 +154,7 @@ function AC_OnRunSyncUsers()
 	$users = get_users('');
 	$numUsers = count( $users );
 
-	// Iterate over the array and retrieve that users' basic information.  The 
+	// Iterate over the array and retrieve that users' basic information.  The
 	// info is written to the DB so that the client can periodically make ajax
 	// calls to learn the progress.
 	foreach ( $users as $user )
@@ -303,7 +303,7 @@ function AC_OnPluginMenu()
 	// When the plugin menu is clicked on, call AC_OnLoadAutoChimpScripts()
 	add_action( 'admin_print_styles-' . $page, 'AC_OnLoadAutoChimpScripts' );
 
-	// Register custom hooks needed for 3rd party plugin publishing support.  Do 
+	// Register custom hooks needed for 3rd party plugin publishing support.  Do
 	// this here as opposed to the global pace so that plugins have a change to
 	// acknowledge themselves as 'installed'.
 	$plugins = new ACPublishPlugins;
@@ -324,7 +324,7 @@ function AC_OnMUPluginsLoaded()
 //	2) Loads WordPress Ajax functionality.
 //	3) Loads AutoChimp custom scripts.
 //
-function AC_OnLoadAutoChimpScripts() 
+function AC_OnLoadAutoChimpScripts()
 {
 	// jQuery UI stuff - files for the progress bar and dependencies PLUS style for them.
 	wp_enqueue_script('jquery');
@@ -336,7 +336,7 @@ function AC_OnLoadAutoChimpScripts()
 
 	// Load the javascript file that makes the AJAX request
 	wp_enqueue_script( 'autochimp-ajax-request' );
-		 
+
 	// declare the URL to the file that handles the AJAX request (wp-admin/admin-ajax.php)
 	wp_localize_script( 'autochimp-ajax-request', 'AutoChimpAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 
@@ -355,24 +355,24 @@ function AC_AddAutoChimpPluginLinks($links, $file)
 	return $links;
 }
 
-function AC_OnAdminInit() 
+function AC_OnAdminInit()
 {
 	global $current_user;
 	$user_id = $current_user->ID;
 	// If user clicks to ignore the notice, add that to their user meta so that
 	// the notice doesn't come up anymore.
-	if ( isset($_GET['ac_21_nag_ignore']) && '0' == $_GET['ac_21_nag_ignore'] ) 
+	if ( isset($_GET['ac_21_nag_ignore']) && '0' == $_GET['ac_21_nag_ignore'] )
 	{
 		add_user_meta( $user_id, WP88_IGNORE_2_1_NOTICE, 'true', true );
 	}
-	
+
 	// Register the AutoChimp JS scripts - they'll be loaded later when the
 	// AutoChimp admin menu is clicked on.  Ensures that these scripts are only
 	// loaded when needed (flow is a little goofy - search for
 	// "wp_enqueue_script( 'autochimp-ajax-request'" for the next step).
 	$pluginFolder = get_bloginfo('wpurl') . '/wp-content/plugins/autochimp/';
 	wp_register_script( 'autochimp-ajax-request', $pluginFolder.'js/autochimp.js', array( 'jquery' ) );
-	
+
 	// Some AutoChimp plugins may use JS as well.  Load them here.
 	//$plugins = new ACPlugins;
 	//$plugins->RegisterScripts( $pluginFolder );
@@ -380,7 +380,7 @@ function AC_OnAdminInit()
 
 //
 //	This function is responsible for saving the user's' the AutoChimp options.  It
-//	also displays the admin UI, which happens at the very bottom of the function, 
+//	also displays the admin UI, which happens at the very bottom of the function,
 //	with the require_once statement.
 //
 function AC_AutoChimpOptions()
@@ -478,11 +478,11 @@ function AC_AutoChimpOptions()
 	{
 		// Save off the mappings of categories to campaigns.
 		AC_SaveCampaignCategoryMappings( WP88_CATEGORY_MAPPING_PREFIX );
-		
+
 		// Now save off the plugin mappings.
 		$publishPlugins = new ACPublishPlugins;
 		$publishPlugins->SaveMappings();
-		
+
 		// The rest is easy...
 		AC_SetBooleanOption( 'on_excerpt_only', WP88_MC_CAMPAIGN_EXCERPT_ONLY );
 		AC_SetBooleanOption( 'on_send_now', WP88_MC_SEND_NOW );
@@ -491,16 +491,16 @@ function AC_AutoChimpOptions()
 		// Tell the user
 		print '<div id="message" class="updated fade"><p>Successfully saved your AutoChimp campaign options.</p></div>';
 	}
-	
-	// Deleting campaign rows is a little more sophisticated.  Have to loop through 
-	// looking for rows that may have been deleted.  Only one may be deleted at a 
+
+	// Deleting campaign rows is a little more sophisticated.  Have to loop through
+	// looking for rows that may have been deleted.  Only one may be deleted at a
 	// time.
 	foreach( $_POST as $key => $value )
 	{
 		// If a match was found, then the row to delete is in $value and the
 		// first part of the $key will determine the name of the DB field.
 		// Following this naming convention, there's no need to forward the
-		// call to a plugin.  
+		// call to a plugin.
 		if ( FALSE !== strpos( $key, WP88_DELETE_MAPPING_SUFFIX ) )
 		{
 			// The value will hold the beginning of the name of the DB option.
@@ -518,14 +518,14 @@ function AC_AutoChimpOptions()
 		// These are hardcoded as part of AutoChimp
 		AC_SetBooleanOption( 'on_fix_regplus', WP88_MC_FIX_REGPLUS );
 		AC_SetBooleanOption( 'on_fix_regplusredux', WP88_MC_FIX_REGPLUSREDUX );
-		
+
 		// Plugins for AutoChimp are handled here.
 		$plugins = new ACSyncPlugins;
 		$plugins->SavePluginSettings();
-		
+
 		$plugins = new ACContentPlugins;
 		$plugins->SavePluginSettings();
-		
+
 		$plugins = new ACPublishPlugins;
 		$plugins->SavePluginSettings();
 
@@ -547,7 +547,7 @@ function AC_AutoChimpOptions()
 //
 //	The third argument, $old_user_data, is for the profile_update action, which calls
 //	AC_OnUpdateUser.  If $mode is MMU_UPDATE, then ensure that this data is a copy
-//	of user data.  Otherwise, null is fine. 
+//	of user data.  Otherwise, null is fine.
 //
 //	List of exceptions and error codes: http://www.mailchimp.com/api/1.3/exceptions.field.php
 //
@@ -593,7 +593,7 @@ function AC_ManageMailUser( $mode, $user_info, $old_user_data, $writeDBMessages 
 
 					// Gather the additional data from AutoChimp plugins
 					$syncPlugins = new ACSyncPlugins;
-					$syncPlugins->SyncData( $merge_vars, $user_info->ID );			
+					$syncPlugins->SyncData( $merge_vars, $user_info->ID );
 
 					// This one gets static data...add it as well to the array.
 					$data = AC_FetchStaticData();
@@ -724,7 +724,7 @@ function AC_CreateCampaignFromPost( $api, $postID, $listID, $interestGroupName, 
 	{
 		return '-1'; // Don't create the campaign yet.
 	}
-	
+
 	// Get info on the list
 	$filters = array();
 	$filters['list_id'] = $listID;
@@ -758,7 +758,7 @@ function AC_CreateCampaignFromPost( $api, $postID, $listID, $interestGroupName, 
 	// Start generating content
 	$content = array();
 	$postContent = '';
-	
+
 	// Get the excerpt option; if on, then show the excerpt
 	if ( '1' === get_option( WP88_MC_CAMPAIGN_EXCERPT_ONLY ) )
 	{
@@ -787,7 +787,7 @@ function AC_CreateCampaignFromPost( $api, $postID, $listID, $interestGroupName, 
 		// Run the full text through the content plugins
 		$contentPlugins = new ACContentPlugins;
 		$postContent = $contentPlugins->ConvertShortcode( $post->post_content );
-		
+
 		// Text version isn't run through the content plugins
 		$textPostContent = apply_filters( 'the_content', $post->post_content );
 		$content['text'] = strip_tags( $textPostContent );
@@ -839,7 +839,7 @@ function AC_OnPublishPost( $postID )
 	// Need to have the "Any" category for the big foreach below to work.  Add it
 	// here.
 	$categories['Any'] = 'any';
-	
+
 	if ( empty( $categories ) )
 	{
 		AC_Log( "There is no standard category for post $postID.  Searching for a third-party plugin category." );
@@ -852,7 +852,7 @@ function AC_OnPublishPost( $postID )
 			if ( $plugin::GetInstalled() && $plugin::GetUsePlugin() )
 			{
 				$newTerms = AC_AssembleTermsArray( $plugin::GetTerms( $postID ) );
-				foreach ($newTerms as $name => $slum) 
+				foreach ($newTerms as $name => $slum)
 				{
 					$categories[$name] = $slum;
 				}
@@ -868,7 +868,7 @@ function AC_OnPublishPost( $postID )
 	AC_Log( "Attempting to create a campaign for post ID $postID." );
 	if ( !empty( $categories ) )
 		AC_Log( $categories );
-	
+
 	// If it matches the user's category choice or is "Any" category, then
 	// do the work.  This needs to be a loop because a post can belong to
 	// multiple categories.
@@ -885,53 +885,53 @@ function AC_OnPublishPost( $postID )
 			foreach ( $fields as $field )
 			{
 				// NOTE:  This approach currently does have the problem that if a category
-				// and a plugin's term have the same slug, then campaigns could go to the 
+				// and a plugin's term have the same slug, then campaigns could go to the
 				// wrong place.  This is fairly unlikely, but this leak needs to be plugged
 				// with an improved architecture here.
 				//
 				// This can happen because the above SQL statement does not discriminate
 				// between categories or terms.  The prefix part of the string and the index
 				// can easily differ while the category slug is the same.
-				
+
 				// Split the results into an array which contains info about this mapping
 				$info = explode( '_', $field->option_name );
-				
+
 				// The last part of $info should contain the word "category".  It's possible
-				// that other rows will be picked up (like when the option value is "Any", 
+				// that other rows will be picked up (like when the option value is "Any",
 				// the "group" option will be picked up too since it can have an "Any" value)
 				// so skip those here.
 				if ( 0 !== strcmp( $info[4], 'category') )
 					continue;
-				
-				// Yank off the "category" from the tail of each string and replace it with the 
+
+				// Yank off the "category" from the tail of each string and replace it with the
 				// other values, then query them.
 				$categoryMailingList = get_option( str_replace( WP88_CATEGORY_SUFFIX, WP88_LIST_SUFFIX, $field->option_name ) );
 				$categoryGroupName = get_option( str_replace( WP88_CATEGORY_SUFFIX, WP88_GROUP_SUFFIX, $field->option_name ) );
 				$categoryTemplateID = get_option( str_replace( WP88_CATEGORY_SUFFIX, WP88_TEMPLATE_SUFFIX, $field->option_name ) );
 				AC_Log( "For the $categorySlug category:  The mailing list is:  $categoryMailingList.  The group is:  $categoryGroupName.  The template ID is:  $categoryTemplateID." );
-		
-				// If the mailing list is NOT "None" then create a campaign.		
+
+				// If the mailing list is NOT "None" then create a campaign.
 				if ( 0 != strcmp( $categoryMailingList, WP88_NONE ) )
 				{
 					// Create an instance of the MailChimp API
 					$apiKey = get_option( WP88_MC_APIKEY );
 					$api = new MCAPI_13( $apiKey );
-		
+
 					// Do the work
 					$id = AC_CreateCampaignFromPost( $api, $postID, $categoryMailingList, $categoryGroupName, $categoryTemplateID );
 					AC_Log( "Created a campaign with ID $id in category $categoryName." );
-		
+
 					// Does the user want to send the campaigns right away?
 					$sendNow = get_option( WP88_MC_SEND_NOW );
-		
+
 					// Send it, if necessary (if user wants it), and the $id is
 					// sufficiently long (just picking longer than 3 for fun).
 					if ( '1' == $sendNow && ( strlen( $id ) > 3 ) )
 					{
 						$api->campaignSendNow( $id );
 					}
-		
-					// Not breaking anymore.  Now, if you assign multiple categories to 
+
+					// Not breaking anymore.  Now, if you assign multiple categories to
 					// create campaigns, then each will be created.
 				}
 			}
@@ -1053,6 +1053,28 @@ function AC_FetchMappedWordPressData( $userID )
 										'tag' => $fieldData,
 										'value' => $value );
 			}
+			// Get job title, job function and state and pass these to mailchimp
+			elseif ( 0 === strcmp( $field, 'Job Title' ) )
+			{
+				$value = get_user_meta( $user_info->ID, 'job_title', true );
+				$dataArray[] = array( 	'name' => $optionName,
+				'tag' => $fieldData,
+				'value' => $value );
+			}
+			elseif ( 0 === strcmp( $field, 'Job Function' ) )
+			{
+				$value = get_user_meta( $user_info->ID, 'job_category', true );
+				$dataArray[] = array( 	'name' => $optionName,
+				'tag' => $fieldData,
+				'value' => $value );
+			}
+			elseif ( 0 === strcmp( $field, 'State' ) )
+			{
+				$value = get_user_meta( $user_info->ID, 'state', true );
+				$dataArray[] = array( 	'name' => $optionName,
+				'tag' => $fieldData,
+				'value' => $value );
+			}
 		}
 	}
 	return $dataArray;
@@ -1159,7 +1181,7 @@ function AC_OnUpdateUser( $userID, $old_user_data, $writeDBMessages = TRUE )
 		// This can also happen when synchronizing users with MailChimp who
 		// aren't subscribers to the MailChimp mailing list yet.
 		//
-		// 215 is the "List_NotSubscribed" error message which can happen if 
+		// 215 is the "List_NotSubscribed" error message which can happen if
 		// the user is in the system but not subscribed to that list.  So, do
 		// an add for that too.
 		//
@@ -1186,7 +1208,7 @@ function AC_OnActivateAutoChimp()
 	if ( '0' === $show )
 	{
 		global $wpdb;
-		// Delete options that are no longer needed 
+		// Delete options that are no longer needed
 		delete_option( WP88_MC_CAMPAIGN_CATEGORY );
 		delete_option( WP88_MC_CAMPAIGN_FROM_POST );
 
@@ -1195,39 +1217,39 @@ function AC_OnActivateAutoChimp()
 		$sql = "delete FROM $tableName WHERE option_name LIKE 'wp88_mc_temp%'";
 		$wpdb->query( $sql );
 
-		// Set defaults for new options		
+		// Set defaults for new options
 		update_option( WP88_MC_PERMANENTLY_DELETE_MEMBERS, '0' );
 		update_option( WP88_MC_SEND_GOODBYE, '1' );
 		update_option( WP88_MC_SEND_ADMIN_NOTIFICATION, '1' );
-		
+
 		// Done.
 		update_option( WP88_PLUGIN_FIRST_ACTIVATION, '1' );
 	}
-	
+
 	// This is for versions after 2.02 where the campaigns mappings become more
 	// dynamic.  Need to migrate existing data to new naming scheme.
 	AC_UpdateCampaignCategoryMappings();
 }
 
-function AC_OnAdminNotice() 
+function AC_OnAdminNotice()
 {
 	global $current_user;
 	$user_id = $current_user->ID;
 	// Check that the user hasn't already clicked to ignore the message
-	if ( !get_user_meta( $user_id, WP88_IGNORE_2_1_NOTICE ) ) 
+	if ( !get_user_meta( $user_id, WP88_IGNORE_2_1_NOTICE ) )
 	{
 		global $pagenow;
-	    if ( 'plugins.php' == $pagenow || 'options-general.php' == $pagenow ) 
+	    if ( 'plugins.php' == $pagenow || 'options-general.php' == $pagenow )
 	    {
 	    	$currentPage = $_SERVER['REQUEST_URI'];
-			
+
 			// If there are already arguments, append the ignore message.  Otherwise
 			// add it as the only variable.
 			if ( FALSE === strpos( $currentPage, '?' ) )
 				$currentPage .= '?ac_21_nag_ignore=0';
 			else
 				$currentPage .= '&ac_21_nag_ignore=0';
-			
+
 	    	$apiSetMessage = '';
 	    	$apiSet = get_option( WP88_MC_APIKEY, '0' );
 			if ( '0' == $apiSet )
